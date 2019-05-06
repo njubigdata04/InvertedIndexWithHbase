@@ -27,6 +27,12 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 public class WriteHBase {
+
+    //自定义属性
+    public static String colfamily = "Content";
+    public static String col = "average num";
+    public static String tablename = "Wuxia";
+
     //定义组合key
     public static class WordType implements WritableComparable<WordType> {
         private String word;
@@ -196,13 +202,15 @@ public class WriteHBase {
                 result = result + (k + ":" + Integer.toString(books.get(k)) + "; ");
             }*/
             Put put = new Put(key.GetWord().getBytes());
-            put.addColumn(Bytes.toBytes("Average"), Bytes.toBytes("average num"), Bytes.toBytes(average));
+            put.addColumn(Bytes.toBytes(WriteHBase.colfamily), Bytes.toBytes(WriteHBase.col), Bytes.toBytes(average));
             context.write(OUT_PUT_KEY, put);
         }
     }
 
     public static void main(String[] args) throws Exception {
-        String tablename = "Wuxia";
+        String colfamily = WriteHBase.colfamily;
+        String col = WriteHBase.col;
+        String tablename = WriteHBase.tablename;
         Configuration configuration = HBaseConfiguration.create();
         configuration.set("hbase.zookeeper.quorum", "localhost");
         HBaseAdmin hBaseAdmin = new HBaseAdmin(configuration);
@@ -212,7 +220,7 @@ public class WriteHBase {
             hBaseAdmin.deleteTable(tablename);
         }
         HTableDescriptor htd = new HTableDescriptor(tablename);
-        HColumnDescriptor hcd = new HColumnDescriptor("Average");
+        HColumnDescriptor hcd = new HColumnDescriptor(colfamily);
         htd.addFamily(hcd);
         hBaseAdmin.createTable(htd);
         Job job = Job.getInstance(configuration);
