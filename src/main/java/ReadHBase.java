@@ -23,7 +23,8 @@ public class ReadHBase {
             //返回一个map of qualifiers to values
             for(Map.Entry<byte[], byte[]> entry: value.getFamilyMap(WriteHBase.colfamily.getBytes()).entrySet()){
                 String str = new String(Bytes.toString(entry.getKey()));
-                String sb = new String(Bytes.toString(entry.getValue()));
+                Double num = (Bytes.toDouble(entry.getValue()));
+                String sb = num.toString();
                 //转成String
                 /*if(str != null){
                     sb.append(new String(entry.getValue()));
