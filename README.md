@@ -30,3 +30,10 @@ ReadHBase是对应功能main函数所在的类，input file path是集群中输�
 完成上述功能1。使用自定义类WordType作为Map的key。定义Mapper类为InvertIndexMapper，完成按<单词,书名>的map，WordType的覆盖hashcode方法保证同个单词进入同个reducer中。
 
 用操作Hbase的WriteHBaseReducer类作为reducer。将平均出现次数写入Wuxia表中，表的rowKey为单词，列族（column family）为Content，对应平均次数对应列名为average num。
+
+```
+sbin/hadoop jar <jar name>.jar WriteHBaseHDFS <input file path> <output file path> 
+```
+
+hadoop` jar <jar name>.jar WriteHBaseHDFS <input file path> <output file path> 
+
