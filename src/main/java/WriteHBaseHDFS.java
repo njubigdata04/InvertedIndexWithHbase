@@ -16,6 +16,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.LazyOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
@@ -64,7 +65,7 @@ public class WriteHBaseHDFS {
             //添加一列
             put.addColumn(Bytes.toBytes(WriteHBase.colfamily), Bytes.toBytes(WriteHBase.col), Bytes.toBytes(average));
             //输出Hdfs文件，记录的是
-            multipleOutputs.write("hdfs", new Text(key.GetWord().toString()), new Text(result), outputPath);
+            multipleOutputs.write("hdfs", new Text(key.GetWord().toString()), new Text(result));
             System.out.println("Writing to HDFS...");
             context.write(OUT_PUT_KEY, put);
 
@@ -110,6 +111,7 @@ public class WriteHBaseHDFS {
         String outputPath = args[1];
         job.getConfiguration().set("outputPath", outputPath);
         FileOutputFormat.setOutputPath(job, new Path(args[1]));//设定文件输出路径
+        LazyOutputFormat.setOutputFormatClass(job, TextOutputFormat.class);
         //向MultipleOutput中建立需要输出的文件名及输出类型
         MultipleOutputs.addNamedOutput(job, "hdfs", TextOutputFormat.class, Text.class, Text.class);
         //MultipleOutputs.addNamedOutput(job, "hbase", TableOutputFormat.class, Text.class, Text.class);

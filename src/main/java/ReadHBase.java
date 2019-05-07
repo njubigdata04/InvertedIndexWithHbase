@@ -6,6 +6,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -18,16 +19,18 @@ import java.util.Map;
 public class ReadHBase {
     public static class ReadHBaseMapper extends TableMapper<Text, Text>{
         protected void map(ImmutableBytesWritable key, Result value, Context context)throws IOException, InterruptedException{
-            StringBuffer sb = new StringBuffer("");
+            //StringBuffer sb = new StringBuffer("");
+            //返回一个map of qualifiers to values
             for(Map.Entry<byte[], byte[]> entry: value.getFamilyMap(WriteHBase.colfamily.getBytes()).entrySet()){
-                String str = new String(entry.getValue());
+                String str = new String(Bytes.toString(entry.getKey()));
+                String sb = new String(Bytes.toString(entry.getValue()));
                 //转成String
-                if(str != null){
+                /*if(str != null){
                     sb.append(new String(entry.getValue()));
                     //sb.append("\t");
                     //sb.append(str);
-                }
-                context.write(new Text(key.get()), new Text(new String(sb)));
+                }*/
+                context.write(new Text(Bytes.toString(key.get())), new Text(sb));
             }
         }
 
@@ -35,7 +38,7 @@ public class ReadHBase {
     public static class ReadHBaseReducer extends Reducer<Text, Text, Text, Text>{
         protected void reduce(Text key, Iterable<Text> values, Context context)throws IOException, InterruptedException{
             for(Text val:values){
-                context.write(key, new Text(val.toString()));
+                context.write(new Text(key.toString()), new Text(val.toString()));
             }
         }
     }
