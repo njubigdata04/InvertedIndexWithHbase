@@ -65,12 +65,13 @@ public class WriteHBaseHDFS {
             //添加一列
             put.addColumn(Bytes.toBytes(WriteHBase.colfamily), Bytes.toBytes(WriteHBase.col), Bytes.toBytes(average));
             //输出Hdfs文件，记录的是
-            multipleOutputs.write("hdfs", new Text(key.GetWord().toString()), new Text(result));
+            String word = key.GetWord();
+            multipleOutputs.write("hdfs", new Text(word), new Text(result));
             System.out.println("Writing to HDFS...");
             context.write(OUT_PUT_KEY, put);
 
         }
-        protected void cleanup(Context context){
+        protected void cleanup(Context context) throws IOException, InterruptedException {
             try {
                 multipleOutputs.close();
             } catch (IOException e) {
@@ -78,13 +79,14 @@ public class WriteHBaseHDFS {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            super.cleanup(context);
         }
     }
 
     public static void main(String[] args)throws Exception {
         //得到表名
         String tablename = WriteHBase.tablename;
-        String colfamily = WriteHBase.colfamily;//得到列族明
+        String colfamily = WriteHBase.colfamily;//得到列族名
         Configuration configuration = HBaseConfiguration.create();//得到hBase资源的Configuration
         configuration.set("hbase.zookeeper.quorum", "localhost");//设定zookeeper属性
         HBaseAdmin hBaseAdmin = new HBaseAdmin(configuration);
@@ -111,9 +113,12 @@ public class WriteHBaseHDFS {
         String outputPath = args[1];
         job.getConfiguration().set("outputPath", outputPath);
         FileOutputFormat.setOutputPath(job, new Path(args[1]));//设定文件输出路径
-        LazyOutputFormat.setOutputFormatClass(job, TextOutputFormat.class);
+        //LazyOutputFormat.setOutputFormatClass(job, TextOutputFormat.class);
+        //job.setOutputFormatClass(TableOutputFormat.class);
         //向MultipleOutput中建立需要输出的文件名及输出类型
         MultipleOutputs.addNamedOutput(job, "hdfs", TextOutputFormat.class, Text.class, Text.class);
+
+
         //MultipleOutputs.addNamedOutput(job, "hbase", TableOutputFormat.class, Text.class, Text.class);
         //建立Reducer操作
         TableMapReduceUtil.initTableReducerJob(tablename, WriteHBaseHDFS.WriteHBaseHDFSReducer.class, job);

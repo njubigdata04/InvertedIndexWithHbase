@@ -30,23 +30,26 @@ import java.util.*;
 public class WriteBoth2 {
 
     public static class WriteBoth2Reducer extends Reducer<WriteHBase.WordType, IntWritable, Text, Text> {
-
-        protected Map<String, Double> table;
+        //建立map来保存单词与平均出现次数的对应关系
+        protected Map<String, Double> table = new HashMap<>();
         protected void setup(){
             table = new HashMap<>();
         }
         @Override
         public void reduce(WriteHBase.WordType key, Iterable<IntWritable> values, Context context)throws IOException,InterruptedException{
-            double sum = 0;
+            double sum = 0;//出现次数和
+            //建立书名和出现次数的映射关系
             Map<String, Integer> books = new HashMap<String, Integer>();
             //遍历value算出词频总和，建立书名和词频的映射关系
             for (IntWritable it : values) {
-                int num = Integer.parseInt(it.toString());
-                sum += num;
-                String bookname = key.GetFilename();
-                if (books.containsKey(bookname))
+                int num = Integer.parseInt(it.toString());//得到出现次数
+                sum += num;//次数和更新
+                String bookname = key.GetFilename();//得到书名
+                if (books.containsKey(bookname))//判断是否已经保存过这本书
+                    //若保存过，更新出现次数
                     books.put(bookname, books.get(bookname) + num);
                 else {
+                    //未保存过，则向map中添加该映射关系
                     books.put(bookname, num);
                 }
             }
@@ -60,9 +63,9 @@ public class WriteBoth2 {
                 result = result + (k + ":" + Integer.toString(books.get(k)) + "; ");
             }
             String word = key.GetWord();
-
+            //向表格中添加<单词，平均出现次数>的映射关系
             table.put(word,new Double(average));
-
+            //将倒排索引写入HDFS文件
             context.write(new Text(word), new Text(result));
 
         }
@@ -112,16 +115,16 @@ public class WriteBoth2 {
         //Job job = new Job(conf, "word count");
 
         job.setJarByClass(WriteBoth2.class);
-        job.setMapperClass(WriteHBase.InvertIndexMapper.class);
-        job.setReducerClass(WriteBoth2.WriteBoth2Reducer.class);
+        job.setMapperClass(WriteHBase.InvertIndexMapper.class);//设定Mapper类
+        job.setReducerClass(WriteBoth2.WriteBoth2Reducer.class);//设定Reducer类
 
-        job.setMapOutputKeyClass(WriteHBase.WordType.class);
-        job.setMapOutputValueClass(IntWritable.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
+        job.setMapOutputKeyClass(WriteHBase.WordType.class);//设定Mapper输出key类型
+        job.setMapOutputValueClass(IntWritable.class);//设定Mapper输出Value类型
+        job.setOutputKeyClass(Text.class);//设定最终输出key类型
+        job.setOutputValueClass(Text.class);//设定最终输出value类型
 
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        FileInputFormat.addInputPath(job, new Path(args[0]));//添加输出文件的路径
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));//设定输出文件的路径
 
         TableMapReduceUtil.addDependencyJars(job);//添加依赖的jar包地址
         System.exit(job.waitForCompletion(true) ? 0 : 1);//等待退出
