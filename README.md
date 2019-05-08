@@ -8,7 +8,7 @@ Part of Nju big data Lab4: Program using Hbase jdbc
 使用指令
 
 ```
-sbin/hadoop jar <jar name>.jar WriteHBase <input file path> 
+sbin/hadoop jar <jar name>.jar WriteBoth2 <input file path> <output file path>
 ```
 
 其中jar name由pom决定，WriteHBase是对应功能main函数所在的类，input file path必须是集群中的地址
@@ -25,15 +25,15 @@ ReadHBase是对应功能main函数所在的类，input file path是集群中输�
 
 ## 代码简介
 
-### 1.WriteHBase.java
+#### 1.WriteBoth2.java
 
 完成上述功能1。使用自定义类WordType作为Map的key。定义Mapper类为InvertIndexMapper，完成按<单词,书名>的map，WordType的覆盖hashcode方法保证同个单词进入同个reducer中。
 
-用操作Hbase的WriteHBaseReducer类作为reducer。将平均出现次数写入Wuxia表中，表的rowKey为单词，列族（column family）为Content，对应平均次数对应列名为average num。
+reducer中将平均出现次数写入Wuxia表中，表的rowKey为单词，列族（column family）为Content，对应平均次数对应列名为average num。（有关这些的参数都在WriteHBase中的static变量中访问得到），为了写HBase中的表，在Reducer中创建Map来储存<单词，平均出现次数>这个键值对。Reducer中完成对这个map的填充，在最后的cleanup中实现写入HBase中
 
-```
-sbin/hadoop jar <jar name>.jar WriteHBaseHDFS <input file path> <output file path> 
-```
+#### 1.ReadHBase.java
 
-hadoop` jar <jar name>.jar WriteHBaseHDFS <input file path> <output file path> 
+完成功能2。使用MapReduce框架。Mapper类使用TableMapper，参数中ImmutableBytesWritable 类型的key,可通过key.get()得到Bytes类型的 rowkey，Result类型的value可通过getFamilyMap（Bytes(colname)）来得到一个<列名，对应储存值>的Map，从而可以完成键值对<单词，平均出现次数>传入Reducer。Reducer不用怎么处理就可以直接输出。
+
+
 
