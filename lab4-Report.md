@@ -134,7 +134,13 @@ select word from wuxia sort by count desc limit 100;
 
 #### Hive Shell表操作
 
+平均次数大于300的词语：
 
+![](assets/great300.png)
+
+平均次数最多的100个词语：
+
+![](assets/top100.png)
 
 ### 七、实验体会
 
