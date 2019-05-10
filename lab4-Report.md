@@ -26,9 +26,9 @@
 
 在上一个任务中，已经将倒排索引的数据存储到了HBase的Wuxia表中，列族名为Content，列名为average num。这个任务主要就是遍历HBase中的Wuxia表，将表中的内容保存到本地文件中。
 
-遍历HBase表主要使用到的操作是扫描（scan）技术，它类似于数据库系统中的游标（cursor），并利用到了HBase提供的底层顺序存储的数据结构。扫描操作的工作方式类似于迭代器，所以用户无需调用scan()方法创建实例，只需要调用HTable的`getScanner()`方法，此方法在返回真正的扫描器（scanner）实例的同时，用户也可以使用它迭代获取数据。
+遍历HBase表主要使用到的操作是扫描（scan）技术，它类似于数据库系统中的游标（cursor），并利用到了HBase提供的底层顺序存储的数据结构。扫描操作的工作方式类似于迭代器，所以用户无需调用 `scan()` 方法创建实例，只需要调用HTable的 `getScanner()` 方法，此方法在返回真正的扫描器（scanner）实例的同时，用户也可以使用它迭代获取数据。
 
-扫描操作不会通过一次RPC请求返回所有匹配的行，而是以行为单位进行返回。在本次实验中，行的数目很大，如果同时在一次请求中发送大量数据，会占用大量的系统资源并消耗很长时间。因此使用`ResultScanner`类把扫描操作转换为类似的`get`操作，它将每一行数据封装成一个`Result`实例，并将所有的`Result`实例放入一个迭代器中，通过`next()`方法进行遍历。
+扫描操作不会通过一次RPC请求返回所有匹配的行，而是以行为单位进行返回。在本次实验中，行的数目很大，如果同时在一次请求中发送大量数据，会占用大量的系统资源并消耗很长时间。因此使用 `ResultScanner` 类把扫描操作转换为类似的 `get` 操作，它将每一行数据封装成一个 `Result` 实例，并将所有的 `Result` 实例放入一个迭代器中，通过 `next()` 方法进行遍历。
 
 实际代码如下：
 
@@ -86,7 +86,7 @@ public class ScanTable {
 
 ```
 
-在代码中，首先实例化一个HBase client，使用它来进行后续的api接口调用，在Scan实例中，需要指定列族名和列名，以保证只读入指定列族指定列的数据，通过扫描器迭代获取所有的行，将其存入`ResultScanner`实例中，并将其中的word和count数据取出，注意再上一个任务存入数据时word类型为`string`，count类型为`double`，因此在取出时，需要将取出的byte[]类型转换为相应的`string`和`double`，并将其写入文件。
+在代码中，首先实例化一个HBase client，使用它来进行后续的api接口调用，在Scan实例中，需要指定列族名和列名，以保证只读入指定列族指定列的数据，通过扫描器迭代获取所有的行，将其存入 `ResultScanner` 实例中，并将其中的word和count数据取出，注意再上一个任务存入数据时word类型为 `string` ，count类型为 `double` ，因此在取出时，需要将取出的byte[]类型转换为相应的 `string` 和 `double` ，并将其写入文件。
 
 ### 五、任务：Hive Shell表操作
 
@@ -150,4 +150,5 @@ select word from wuxia sort by count desc limit 100;
 
 【2】<https://blog.csdn.net/qq_16633405/article/details/78278786>
 
-【3】
+【3】[Hbase ERROR: Table already exists](https://www.jianshu.com/p/e1767d57f972)
+
