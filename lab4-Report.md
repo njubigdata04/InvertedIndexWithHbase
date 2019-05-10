@@ -128,7 +128,7 @@ select word from wuxia sort by count desc limit 100;
 
 #### 遍历HBase并保存
 
-![](https://github.com/njubigdata04/InvertedIndexWithHbase/blob/master/scanHBase.png)
+![](assets/scanHBase.png)
 
 
 
