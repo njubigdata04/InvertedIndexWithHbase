@@ -24,9 +24,77 @@
 
 ### 四、任务：遍历HBase表并保存
 
+在上一个任务中，已经将倒排索引的数据存储到了HBase的Wuxia表中，列族名为Content，列名为average num。这个任务主要就是遍历HBase中的Wuxia表，将表中的内容保存到本地文件中。
+
+遍历HBase表主要使用到的操作是扫描（scan）技术，它类似于数据库系统中的游标（cursor），并利用到了HBase提供的底层顺序存储的数据结构。扫描操作的工作方式类似于迭代器，所以用户无需调用scan()方法创建实例，只需要调用HTable的getScanner()方法，此方法在返回真正的扫描器（scanner）实例的同时，用户也可以使用它迭代获取数据。
+
+扫描操作不会通过一次RPC请求返回所有匹配的行，而是以行为单位进行返回。在本次实验中，行的数目很大，如果同时在一次请求中发送大量数据，会占用大量的系统资源并消耗很长时间。因此使用ResultScanner类把扫描操作转换为类似的get操作，它将每一行数据封装成一个Result实例，并将所有的Result实例放入一个迭代器中，通过next()方法进行遍历。
+
+实际代码如下：
+
+```java
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.*;
+import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.util.Bytes;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class ScanTable {
+    public static void main(String[] args) throws IOException {
+        // 创建所需的配置
+        Configuration conf = HBaseConfiguration.create();
+        // 实例化一个新的客户端
+        HTable table = new HTable(conf, "Wuxia");
+        // 创建一个空的Scan实例
+        Scan scan = new Scan();
+        // 将限制条件添加到Scan中
+        scan.addColumn(Bytes.toBytes("Content"), Bytes.toBytes("average num"));
+        // 取得一个扫描器迭代访问所有的行
+        ResultScanner scanner = table.getScanner(scan);
+        try {
+            // 创建新文件
+            File file = new File("result.txt");
+            if (!file.exists()) {
+                // 若文件已存在则重新创建
+                file.createNewFile();
+            }
+            // 创建fileWriter
+            FileWriter fileWriter = new FileWriter(file.getName());
+            // 遍历每一行的数据
+            for (Result res : scanner) {
+                // 取出KeyValue类对象
+                for(KeyValue kv : res.raw()){
+                    // 获取Row值和Value值，并写入文件
+                    fileWriter.write(Bytes.toString(kv.getRow()) + "\t");
+                    fileWriter.write(Bytes.toDouble(kv.getValue()) + "\r\n");
+                }
+            }
+            // 关闭fileWriter
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // 关闭scanner
+        scanner.close();
+        // 关闭table
+        table.close();
+    }
+}
+
+```
+
+在代码中，首先实例化一个HBase client，使用它来进行后续的api接口调用，在Scan实例中，需要指定列族名和列名，以保证只读入指定列族指定列的数据，通过扫描器迭代获取所有的行，将其存入ResultScanner实例中，并将其中的word和count数据取出，注意再上一个任务存入数据时word类型为string，count类型为double，因此在取出时，需要将取出的byte[]类型转换为相应的string和double，并将其写入文件。
+
 ### 五、任务：Hive Shell表操作
 
 ### 六、运行结果
+
+#### 遍历HBase并保存
+
+![](D:\GitHub-Repositories\InvertedIndexWithHbase\scanHBase.png)
 
 ### 七、实验体会
 
