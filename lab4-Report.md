@@ -90,11 +90,51 @@ public class ScanTable {
 
 ### 五、任务：Hive Shell表操作
 
+配置好Hive后，首先建立一个wuxia表：
+
+```mysql
+create table wuxia (word STRING, count DOUBLE) row format delimited fields terminated by '\t' stored as textfile;
+```
+
+建表指令中，规定了表的两个属性为word和count，类型分别为字符串和double。该表可以从文件加载进来，对文件格式的要求是：每行一个条目(word count)，中间用'\t'隔开。
+
+根据实验前一部分得到的数据文件，将数据文件导入wuxia表：
+
+```mysql
+load data inpath "/home/hadoop/data/result.txt" into table wuxia;
+```
+
+再执行：
+
+```mysql
+select * from wuxia;
+```
+
+即可看到所有条目，说明加载成功。
+
+查找平均出现次数大于300的词语：
+
+```mysql
+select word from wuxia where count > 300;
+```
+
+查找平均出现次数最大的100的词语：
+
+```mysql
+select word from wuxia sort by count desc limit 100;
+```
+
 ### 六、运行结果
 
 #### 遍历HBase并保存
 
-![](D:\GitHub-Repositories\InvertedIndexWithHbase\scanHBase.png)
+![](https://github.com/njubigdata04/InvertedIndexWithHbase/blob/master/scanHBase.png)
+
+
+
+#### Hive Shell表操作
+
+
 
 ### 七、实验体会
 
