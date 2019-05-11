@@ -406,15 +406,15 @@ Hive配置还需要注意：
 sbin/hadoop jar <jar name>.jar WriteBoth2 <input file path> <output file path>
 ```
 
-![执行Jar包指令结果]()
+![执行Jar包指令结果](assets/exec_jar.png)
 
 运行后HBase中的结果：
 
-![HBase的输出截图]()
+![HBase的输出截图](assets/hbase_result.png)
 
 运行后HDFS文件：
 
-![HDFS的输出截图]()
+![HDFS的输出截图](assets/hdfs_output.png)
 
 #### 遍历HBase并保存
 
@@ -433,6 +433,10 @@ sbin/hadoop jar <jar name>.jar WriteBoth2 <input file path> <output file path>
 ![](assets/top100.png)
 
 ### 七、实验体会
+
+- 在配置和使用HBase和Hive时，初步了解了HBase和Hive的设计思想，并了解了其与hadoop 结合使用的强大功能性。
+- 在调试程序时，遇到了一些classpath的问题。通过深入底层代码的阅读，了解了hadoop的对象以及反射调用是如何逐步传入hadoop运行，对于之后实现功能强大和鲁棒性强的hadoop程序有一定的帮助。
+- 学习了HBase和Hive的Shell使用和其jdbc的使用，为之后实现功能性更强大，更灵活的hadoop程序奠定了基础。
 
 参考：
 
