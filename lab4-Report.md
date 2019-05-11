@@ -204,15 +204,6 @@ public static class WriteBoth2Reducer extends Reducer<WriteHBase.WordType, IntWr
 实际代码如下：
 
 ```java
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.*;
-import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.util.Bytes;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
 public class ScanTable {
     public static void main(String[] args) throws IOException {
         // 创建所需的配置
@@ -254,7 +245,6 @@ public class ScanTable {
         table.close();
     }
 }
-
 ```
 
 在代码中，首先实例化一个HBase client，使用它来进行后续的api接口调用，在Scan实例中，需要指定列族名和列名，以保证只读入指定列族指定列的数据，通过扫描器迭代获取所有的行，将其存入 `ResultScanner` 实例中，并将其中的word和count数据取出，注意再上一个任务存入数据时word类型为 `string` ，count类型为 `double` ，因此在取出时，需要将取出的byte[]类型转换为相应的 `string` 和 `double` ，并将其写入文件。
