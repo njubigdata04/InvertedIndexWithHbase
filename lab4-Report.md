@@ -339,7 +339,64 @@ select word from wuxia sort by count desc limit 100;
 
 #### HBase配置和Hive配置文件
 
+HBase配置：
 
+```xml
+	   <property>
+           <name>hbase.master.info.port</name>
+           <value>16010</value>
+       </property>
+       <property>
+           <name>hbase.rootdir</name>
+           <value>hdfs://localhost:9000/hbase</value>
+       </property>
+       <property>
+           <name>hbase.cluster.distributed</name>
+           <value>true</value>
+       </property>
+       <property>
+           <name>hbase.zookeeper.property.dataDir</name>
+           <value>/home/hadoop/.zookeeper</value>
+       </property>
+```
+
+Hive配置：
+
+使用mysql进行Hive元数据的存储：
+
+```xml
+<property>
+  	<name>javax.jdo.option.ConnectionURL</name>
+    <value>jdbc:mysql://localhost:3306/hive?createDatabaseIfNotExist=true</value>
+  </property>
+  <property>
+  	<name>javax.jdo.option.ConnectionDriverName</name>
+  	<value>com.mysql.jdbc.Driver</value>
+  </property>
+  <property>
+  	<name>javax.jdo.option.ConnectionUserName</name>
+  	<value>root</value>
+  </property>
+  <property>
+  	<name>javax.jdo.option.ConnectionPassword</name>
+  	<value>root</value>
+ </property>
+<property>
+    <name>hive.exec.local.scratchdir</name>
+    <value>/tmp</value>
+    <description>Local scratch space for Hive jobs</description>
+  </property>
+  <property>
+    <name>hive.downloaded.resources.dir</name>
+    <value>/home/hadoop/hive/warehouse</value>
+    <description>Temporary local directory for added resources in the remote file system.</description>
+  </property>
+```
+
+Hive配置还需要注意：
+
+- 删除hive-site.xml中有关derby数据库的所有配置
+- 需要初始化mysql中的hive元数据表，即：schematool -dbType mysql -initSchema
 
 #### 同时写入HBase和HDFS
 
@@ -367,11 +424,11 @@ sbin/hadoop jar <jar name>.jar WriteBoth2 <input file path> <output file path>
 
 #### Hive Shell表操作
 
-平均次数大于300的词语：
+平均次数大于300的词语(部分)：
 
 ![](assets/great300.png)
 
-平均次数最多的100个词语：
+平均次数最多的100个词语(部分截图)：
 
 ![](assets/top100.png)
 
