@@ -32,9 +32,7 @@ public class WriteBoth2 {
     public static class WriteBoth2Reducer extends Reducer<WriteHBase.WordType, IntWritable, Text, Text> {
         //建立map来保存单词与平均出现次数的对应关系
         protected Map<String, Double> table = new HashMap<>();
-        protected void setup(){
-            table = new HashMap<>();
-        }
+
         @Override
         public void reduce(WriteHBase.WordType key, Iterable<IntWritable> values, Context context)throws IOException,InterruptedException{
             double sum = 0;//出现次数和
@@ -55,18 +53,16 @@ public class WriteBoth2 {
             }
             //得到平均出现次数
             double average = sum / (double) (books.size());
-            String result = "";//输出倒排索引
-            Iterator<String> iterator = books.keySet().iterator();
+            StringBuilder result = new StringBuilder();//输出倒排索引
             //建立倒排索引
-            while (iterator.hasNext()) {
-                String k = iterator.next();
-                result = result + (k + ":" + Integer.toString(books.get(k)) + "; ");
+            for (String k : books.keySet()) {
+                result.append(k).append(":").append(Integer.toString(books.get(k))).append("; ");
             }
             String word = key.GetWord();
             //向表格中添加<单词，平均出现次数>的映射关系
-            table.put(word,new Double(average));
+            table.put(word, average);
             //将倒排索引写入HDFS文件
-            context.write(new Text(word), new Text(result));
+            context.write(new Text(word), new Text(result.toString()));
 
         }
         protected void cleanup(Context context) throws IOException, InterruptedException {
